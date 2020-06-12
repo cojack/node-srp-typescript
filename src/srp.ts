@@ -28,7 +28,7 @@ const padTo = (n: Buffer, len: number): Buffer => {
   assertIsBuffer(n, "n");
   const padding = len - n.length;
   assert_(padding > -1, "Negative padding.  Very uncomfortable.");
-  const result = new Buffer(len);
+  const result: Buffer = Buffer.alloc(len);
   result.fill(0, 0, padding);
   n.copy(result, padding);
   assert.strictEqual(result.length, len);
@@ -87,7 +87,7 @@ const getx = (params: SRPParams, salt: Buffer, I: Buffer, P: Buffer): BigNum => 
   assertIsBuffer(I, "identity (I)");
   assertIsBuffer(P, "password (P)");
   const hashIP = crypto.createHash(params.hash)
-    .update(Buffer.concat([I, new Buffer(':'), P]))
+    .update(Buffer.concat([I, Buffer.alloc(1,':'), P]))
     .digest();
   const hashX = crypto.createHash(params.hash)
     .update(salt)
@@ -143,18 +143,15 @@ const getk = (params: SRPParams): BigNum => {
  * Generate a random key
  *
  * params:
- *         bytes (int)      length of key (default=32)
- *         callback (func)  function to call with err,key
- *
- * returns: nothing, but runs callback with a Buffer
+ *  bytes (int)      length of key (default=32)
  */
-const genKey = (bytes: number, callback: Function): void => {
-  if (typeof callback !== 'function') {
-    throw("Callback required");
-  }
-  crypto.randomBytes(bytes, (err: Error | null, buf: Buffer) => {
-    if (err) return callback (err)
-    return callback(null, buf)
+const genKey = async (bytes: number): Promise<Buffer>=> {
+  return new Promise<Buffer>((resolve) => {
+    crypto.randomBytes(bytes, (err: Error | null, buf: Buffer) => {
+      if(err)
+        throw err
+      resolve(buf)
+    })
   })
 }
 

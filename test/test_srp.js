@@ -26,11 +26,11 @@ vows.describe("srp.js")
   "create a and b": {
     topic: function() {
       var cb = this.callback;
-      srp.genKey(64, function(err, key) {
-        assert(err === null);
+      srp.genKey(64).then((key) => {
+        // assert(err === null);
         a = key;
-        srp.genKey(32, function(err, key) {
-          assert(err === null);
+        srp.genKey(32).then((key) => {
+          // assert(err === null);
           b = key;
           cb();
         });
